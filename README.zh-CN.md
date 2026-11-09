@@ -5,7 +5,7 @@
 
 <p align="center"><a href="README.md">English</a> · 简体中文</p>
 
-`smart-title-rex` 是一个用于 Rex 的 [Amber](https://github.com/rawnly/amber) 插件。它监视你的标签页，把获得焦点的终端最近的输出发给一个兼容 OpenAI 的 chat-completions 模型，然后把标签页改成一个短标题——说明这个标签页在做什么，而不是文件夹名或进程名。
+`smart-title-rex` 是一个 Rex 插件，用 [lazy.rex](https://github.com/TaterDoge/lazy.rex) 安装。它监视你的标签页，把获得焦点的终端最近的输出发给一个兼容 OpenAI 的 chat-completions 模型，然后把标签页改成一个短标题——说明这个标签页在做什么，而不是文件夹名或进程名。
 
 它跟随 Rex 服务：配置加载后启动，`rex config reload` 时重启，服务停止时退出。没有手动启动命令。
 
@@ -15,17 +15,17 @@
 
 ## 环境要求
 
-- Rex 和 Amber 在同一台机器上。
+- Rex 和 Git 在同一台机器上：首次安装时由 lazy.rex 克隆插件。
 - 一个兼容 OpenAI 的 chat-completions 接口（OpenAI、Magpie、OpenRouter、本地服务……）。
 - Rex 服务器上有 `/usr/bin/curl` 8.3+（用于通过环境变量而非命令行传递 API key）。
 - `rex` 可执行文件：优先取 `PATH`，否则取自正在运行的 Rex 服务器自身。
 
 ## 安装
 
-在 `~/.config/rex/init.lua` 的 `amber.setup({ plugins = ... })` 中加入该插件：
+在 `~/.config/rex/lua/plugins/smart-title.lua` 中以 [lazy.rex](https://github.com/TaterDoge/lazy.rex) spec 的形式声明该插件：
 
 ```lua
-{
+return {
   "taterdoge/smart-title-rex",
   main = "smart-title-rex",
   opts = {
@@ -33,17 +33,29 @@
     api_key = os.getenv("OPENAI_API_KEY") or "",
     model = "gpt-4o-mini",
   },
-},
+}
 ```
 
 然后安装并重载：
 
 ```sh
-rex do amber_install
+rex --timeout 30s do lazy_install
 rex config reload
 ```
 
-开发时使用本地代码副本，可加上 `path = "/absolute/path/to/smart-title-rex"`。`path` 形式的本地插件由外部管理：不要对它们运行 `amber_install`。
+lazy.rex 把插件装到 `<root>/<name>`，默认是 `$XDG_DATA_HOME/rex/lazy`。真正触发 `setup` 的是 `opts`；没有 `opts` 或 `config = true` 时插件只会被加入 `package.path`。lazy.rex 本身尚未安装时，按它的[引导安装说明](https://github.com/TaterDoge/lazy.rex#引导安装)操作。
+
+开发时使用本地代码副本，用 `dir` 代替 Git 源：
+
+```lua
+return {
+  dir = "/absolute/path/to/smart-title-rex",
+  name = "smart-title-rex",
+  opts = { ... },
+}
+```
+
+`dir` 形式的本地插件由你自己管理：lazy.rex 既不安装也不更新它们。
 
 ## 配置
 

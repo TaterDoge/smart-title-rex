@@ -5,7 +5,7 @@
 
 <p align="center">English · <a href="README.zh-CN.md">简体中文</a></p>
 
-`smart-title-rex` is an [Amber](https://github.com/rawnly/amber) plugin for Rex. It watches your tabs, sends the focused terminal's recent output to an OpenAI-compatible chat-completions model, and renames the tab to a short title that says what the tab is doing — not the folder or process name.
+`smart-title-rex` is a Rex plugin, installed with [lazy.rex](https://github.com/TaterDoge/lazy.rex). It watches your tabs, sends the focused terminal's recent output to an OpenAI-compatible chat-completions model, and renames the tab to a short title that says what the tab is doing — not the folder or process name.
 
 It follows the Rex server: starts after the config loads, restarts on `rex config reload`, and exits when the server stops. No manual start command.
 
@@ -15,17 +15,17 @@ It follows the Rex server: starts after the config loads, restarts on `rex confi
 
 ## Requirements
 
-- Rex and Amber on the same machine.
+- Rex and Git on the same machine: lazy.rex clones the plugin on first install.
 - An OpenAI-compatible chat-completions endpoint (OpenAI, Magpie, OpenRouter, a local server, …).
 - `/usr/bin/curl` 8.3+ on the Rex server (used to pass the API key through the environment, not the command line).
 - The `rex` executable: taken from `PATH`, otherwise from the running Rex server itself.
 
 ## Installation
 
-Add the plugin to `amber.setup({ plugins = ... })` in `~/.config/rex/init.lua`:
+Declare the plugin in `~/.config/rex/lua/plugins/smart-title.lua`, as a [lazy.rex](https://github.com/TaterDoge/lazy.rex) spec:
 
 ```lua
-{
+return {
   "taterdoge/smart-title-rex",
   main = "smart-title-rex",
   opts = {
@@ -33,17 +33,29 @@ Add the plugin to `amber.setup({ plugins = ... })` in `~/.config/rex/init.lua`:
     api_key = os.getenv("OPENAI_API_KEY") or "",
     model = "gpt-4o-mini",
   },
-},
+}
 ```
 
 Then install and reload:
 
 ```sh
-rex do amber_install
+rex --timeout 30s do lazy_install
 rex config reload
 ```
 
-For a local checkout during development, add `path = "/absolute/path/to/smart-title-rex"`. Local `path` plugins are externally managed: do not run `amber_install` for them.
+lazy.rex installs into `<root>/<name>`, `$XDG_DATA_HOME/rex/lazy` by default. `opts` is what makes it call `setup`; without `opts` or `config = true` the plugin is only added to `package.path`. If lazy.rex itself is not installed yet, follow its [bootstrap instructions](https://github.com/TaterDoge/lazy.rex#bootstrapping).
+
+For a local checkout during development, use `dir` instead of the Git source:
+
+```lua
+return {
+  dir = "/absolute/path/to/smart-title-rex",
+  name = "smart-title-rex",
+  opts = { ... },
+}
+```
+
+Local `dir` plugins are managed by you: lazy.rex neither installs nor updates them.
 
 ## Configuration
 
