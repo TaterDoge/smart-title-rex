@@ -11,8 +11,6 @@ It follows the Rex server: starts after the config loads, restarts on `rex confi
 
 ![Two Rex tabs automatically renamed as plugin tests pass and a local HTTP server starts](docs/demo.gif)
 
-*Recorded in Rex with t-rec. Two tabs, two tasks, automatic titles; idle waits shortened.*
-
 ## Requirements
 
 - Rex and Git on the same machine: lazy.rex clones the plugin on first install.
